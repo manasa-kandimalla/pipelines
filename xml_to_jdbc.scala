@@ -2,6 +2,7 @@ import com.github.music.of.the.ainur.almaren.builder.Core.Implicit
 import com.github.music.of.the.ainur.almaren.Almaren
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.SaveMode
+import com.github.music.of.the.ainur.quenya.QuenyaDSL
 
 val almaren = Almaren("Custom code")
 
