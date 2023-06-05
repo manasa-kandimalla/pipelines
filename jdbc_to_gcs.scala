@@ -7,5 +7,3 @@ spark.sparkContext.hadoopConfiguration.set("fs.gs.impl","com.google.cloud.hadoop
 val jdbcDF = spark.read.format("jdbc").option("driver", "org.postgresql.Driver").option("url", "jdbc:postgresql://w3.training5.modak.com:5432/training").option("dbtable", "tr5.mt4002_cats").option("user", "mt4002").option("password", "mt4002@m02y22").load()
 
 jdbcDF.write.format("csv").mode("overwrite").save("gs://modak-nabu-bucket/mt4002_testing/ingestion/mk_training_public_cats_test.parquet")
-
-abcdefff.show()
