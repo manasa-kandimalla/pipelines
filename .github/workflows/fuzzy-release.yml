@@ -1,0 +1,35 @@
+name: Nabu Fuzzy Matching Bot Release Workflow
+on:
+  release:
+    types: [published]
+
+jobs:
+  Build:
+    runs-on: self-hosted
+    env:
+      AZURE_TOKEN: ${{secrets.AZURE_TOKEN}}
+      GITHUB_TOKEN: ${{secrets.ACTION_GITHUB_TOKEN}}
+      DOCKER_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+      DOCKER_NEW_REGISTRY: ${{ secrets.ECR_NEW_REGISTRY }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Execute AWS ECR Login Command
+        run: |
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 703145693148.dkr.ecr.ap-south-1.amazonaws.com
+      - name: Docker Build Staging Image And Final Image
+        run: |
+          set -e
+          docker system prune -f -a
+          DOCKER_BUILDKIT=1 docker build --no-cache \
+          --build-arg AZURE_TOKEN=$AZURE_TOKEN \
+          --build-arg GITHUB_TOKEN=$GITHUB_TOKEN \
+          --build-arg NABU_SPARK_CODE_VERSION=${{ github.event.release.tag_name }} \
+          -t nabu_spark_fuzzy_code \
+          -f docker/Dockerfile .
+          DOCKER_BUILDKIT=1 docker build --no-cache \
+          -t $DOCKER_NEW_REGISTRY/nabu-sparkbot-fuzzy-matching:${{ github.event.release.tag_name }} \
+          -f docker/DockerfileFinal .
+          docker push $DOCKER_NEW_REGISTRY/nabu-sparkbot-fuzzy-matching:${{ github.event.release.tag_name }} 
+          docker system prune -f -a
+          
